@@ -1,13 +1,3 @@
-/*   SE RECIBIRAN LOS NOMBRES DE LOS CANDIDATOS DE UNA ELECCION
-     CON LA CANTIDAD DE VOTOS QUE OBTUVO EN CADA MESA.
-     LOS NODOS CANDIDATO ESTARAN FORMADOS POR EL NOMBRE, LA CANTIDAD
-     DE VOTOS ACUMULADOS Y EL PUNTERO AL SIGUIENTE.
-     SE PIDE HACER UNA LISTA EN LA QUE NO SE REPITAN NODOS PARA EL MISMO CANDIDATO.
-     SI ESTE NO ESTA EN LA LISTA, SE LO DA DE ALTA JUNTO CON SUS VOTOS.
-     SI ESTE EXISTE, NO SE LO DEBE DAR DE ALTA Y SE DEBERAN ACTUALIZAR SUS VOTOS.
-     DETERMINAR EL CANDIDATO GANADOR.
-*/
-
 
 #include<stdio.h>
 #include<stdlib.h>
@@ -19,14 +9,16 @@ using namespace std;
 class CANDIDATO {
 	public :
 		char NOM[20] ;
+		int VOTOS;
 		CANDIDATO * SIG ;	
-		CANDIDATO(char *);
+		CANDIDATO(char *, int);
 };
 
 
-CANDIDATO::CANDIDATO(char * NOMBRE)
+CANDIDATO::CANDIDATO(char * NOMBRE, int VOTOS1)
 {
-		strcpy(NOM,NOMBRE) ;		
+		strcpy(NOM,NOMBRE) ;
+		VOTOS = VOTOS1;		
 }
 
 
@@ -36,8 +28,11 @@ class LISTA {
 		CANDIDATO * INICIO ;
 	public :
 		LISTA();
-		void CARGAR(char *,int);
 		void MIRAR() ;
+		void CARGAR(char *,int);
+		void GANADOR();
+		CANDIDATO * BUSCAR(char *);
+		void PONER_PRINCIPIO(CANDIDATO *);
 };
 
 
@@ -46,30 +41,64 @@ LISTA::LISTA()
 		INICIO = NULL ;		
 }
 
-
-
-void LISTA::CARGAR(char * NOMBRE , int VOTOS)
-{
-		CANDIDATO * P ;
-		P = new CANDIDATO(NOMBRE) ;
-		P->SIG = INICIO ;
-		INICIO = P ;	
-}
-
-
 void LISTA::MIRAR()
 {
 		CANDIDATO * P ;
 					
 		P = INICIO ;
 		while ( P ) {
-				cout << "\n\t\t CANDIDATO  :  " << P->NOM << "\n";
+				printf("\n\t\t CANDIDATO  :  %s			%-15d", P->NOM,P->VOTOS);
 				P = P->SIG ;
 		}
-		getchar();
+	//	getchar();
+}
+void LISTA::GANADOR(){
+	int cont;
+	int contMax = 0;
+	char Ganador[20];
+	CANDIDATO * P;
+	P = INICIO;
+	
+	while(P){
+		if(P->VOTOS > contMax){
+			strcpy(Ganador, P->NOM);
+			contMax= P->VOTOS;
+		}
+		P = P->SIG;
+	}
+	
+	cout << "\n\n\t	EL GANADOR ES " << Ganador;
+	
+}
+void LISTA::PONER_PRINCIPIO(CANDIDATO * P){
+	
+	P->SIG = INICIO;
+	INICIO = P;
+	
+}
+CANDIDATO * LISTA::BUSCAR(char * S){
+	CANDIDATO * P;
+	
+	P = INICIO;
+	while(P){
+		if(!strcmp(S,P->NOM))
+			return P;
+		P = P->SIG;
+	}
+	return NULL;
 }
 
-
+void LISTA::CARGAR(char * S, int VOTOS){
+	CANDIDATO * P;
+	P = BUSCAR(S);
+	if(P){
+		//ACUMULAMOS
+		P->VOTOS += VOTOS;
+		return;
+	}
+	P = new CANDIDATO(S, VOTOS);
+	PONER_PRINCIPIO(P);
+}
 
 char * GENERANOM() ;
 
@@ -82,11 +111,10 @@ int main()
 		for ( I = 0 ; I < CANTIDAD ; I++ )
 				L.CARGAR( GENERANOM() , 200+rand()%300 ) ;
 				
-		L.MIRAR() ;		
+		L.MIRAR() ;	
+		
+		L.GANADOR();
 				
-		/*   DETERMINAR EL CANDIDATO GANADOR  */
-//		L.GANADOR() ;		
-			
 		return 0 ;
 }
 
